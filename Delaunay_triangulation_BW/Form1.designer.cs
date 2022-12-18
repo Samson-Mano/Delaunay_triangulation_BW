@@ -1,4 +1,4 @@
-﻿namespace Delaunay_triangulation
+﻿namespace Delaunay_triangulation_BW
 {
     partial class Form1
     {

@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Delaunay_triangulation
+namespace Delaunay_triangulation_BW
 {
     public partial class Form1 : Form
     {
@@ -378,7 +378,7 @@ namespace Delaunay_triangulation
 
             //(new delaunay_divide_n_conquer()).delaunay_start(main_drw_obj.all_points, ref temp_edges, ref temp_instances);
             // Delaunay Triangulation 
-            (new delaunay_triangulation_divide_n_conquer()).delaunay_start(main_drw_obj.all_points, ref temp_edges, ref temp_faces, ref temp_instances);
+           // (new delaunay_triangulation_divide_n_conquer()).delaunay_start(main_drw_obj.all_points, ref temp_edges, ref temp_faces, ref temp_instances);
 
             main_drw_obj.all_edges = temp_edges;
             main_drw_obj.all_faces = temp_faces;
