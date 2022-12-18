@@ -22,7 +22,7 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             // Empty constructor
         }
 
-        public void Add_multiple_points(List<point_store> p_inpt_points)
+        public void create_super_triangle(List<point_store> p_inpt_points)
         {
             // Call this first
             points_data = new point_list_store();
@@ -39,7 +39,14 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             // Create an imaginary triangle that encloses all the point set
             set_bounding_triangle(inpt_points);
 
-            foreach (point_store i_pt in inpt_points)
+
+        }
+
+        public void Add_multiple_points(List<point_store> p_inpt_points)
+        {
+            // create_super_triangle(p_inpt_points);
+
+            foreach (point_store i_pt in p_inpt_points)
             {
 
                 // incemental add point
@@ -609,7 +616,7 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             double max_x, max_y, k;
             max_x = (x_sorted[x_sorted.Length - 1].pt_coord.x - x_sorted[0].pt_coord.x);
             max_y = (y_sorted[y_sorted.Length - 1].pt_coord.y - y_sorted[0].pt_coord.y);
-            k = 1000 * Math.Max(max_x, max_y);
+            k = 10 * Math.Max(max_x, max_y);
 
             // zeoth _point
             double x_zero, y_zero;
@@ -620,9 +627,9 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             int pt_count = all_input_vertices.Count;
 
             // set the vertex
-            point_store s_p1 = new point_store(pt_count + 1, 0, Math.Round(k / 2.0f), 3);
-            point_store s_p2 = new point_store(pt_count + 2, Math.Round(k / 2.0f), 0.0, 3);
-            point_store s_p3 = new point_store(pt_count + 3, -1 * Math.Round(k / 2.0f), -1 * Math.Round(k / 2.0f), 3);
+            point_store s_p1 = new point_store(0, 0, Math.Round(k / 2.0f), 3);
+            point_store s_p2 = new point_store(1, Math.Round(k / 2.0f), 0.0, 3);
+            point_store s_p3 = new point_store(2, -1 * Math.Round(k / 2.0f), -1 * Math.Round(k / 2.0f), 3);
 
             // Add the supertriangle pts to pts_data
             this.points_data.add_point(s_p1);
@@ -663,11 +670,6 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             edges_data.associate_triangle_to_edge(stri_edges_id[1], sup_tri_index, points_data, triangles_data);
             // Edge 3
             edges_data.associate_triangle_to_edge(stri_edges_id[2], sup_tri_index, points_data, triangles_data);
-
-            // Add the points to the main point list
-            points_data.add_point(s_p1);
-            points_data.add_point(s_p2);
-            points_data.add_point(s_p3);
 
             // Super triangle creation complete
             //_________________________________________________________________________________

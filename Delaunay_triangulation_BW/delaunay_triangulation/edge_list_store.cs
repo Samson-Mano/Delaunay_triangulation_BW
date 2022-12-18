@@ -22,15 +22,10 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
         public int add_edge(int pt1_id, int pt2_id, double edge_length)
         {
             // Add Edge
-            int edge_index = get_unique_edge_id();
+            int edge_id = get_unique_edge_id();
 
-            //if(edge_index == 6)
-            //{
-            //    global_variables.gvariables_static.error_tracker = 0;
-            //}
-
-            this.all_edges.Add(new edge_store(edge_index, pt1_id, pt2_id, edge_length));
-            return edge_index;
+            this.all_edges.Add(new edge_store(edge_id, pt1_id, pt2_id, edge_length));
+            return edge_id;
         }
 
         public void remove_edge(int r_edge_id)

@@ -13,6 +13,7 @@ namespace Delaunay_triangulation_BW
     public partial class Form1 : Form
     {
         planar_object_store main_drw_obj;
+        delaunay_triangulation.mesh_store mesh_data = new delaunay_triangulation.mesh_store();
         Random rand0 = new Random();
 
         public class planar_object_store // This is a sattelite class to store and control all the drawing ojects
@@ -20,13 +21,10 @@ namespace Delaunay_triangulation_BW
             List<point2d> _all_points = new List<point2d>(); // List of point object to store all the points in the drawing area
             List<edge2d> _all_edges = new List<edge2d>(); // List of edge object to store all the edges created from Delaunay triangulation
             List<face2d> _all_faces = new List<face2d>(); // List of face object to store all the faces created from Delaunay triangulation
-            List<instance_tracker> _all_instance = new List<instance_tracker>(); // instance tracker to animate the results
-
-            public List<instance_tracker> all_instance
-            {
-                set { this._all_instance = value; }
-                get { return this._all_instance; }
-            }
+       
+            // Boundary points
+            List<edge2d> _bndry_edge = new List<edge2d>();
+            List<point2d> _bndry_pts = new List<point2d>();
 
             public List<point2d> all_points
             {
@@ -46,47 +44,38 @@ namespace Delaunay_triangulation_BW
                 get { return this._all_faces; }
             }
 
+            public List<point2d> bndry_pts
+            {
+                set { this._bndry_pts = value; }
+                get { return this._bndry_pts; }
+            }
+
+            public List<edge2d> bndry_edge
+            {
+                set { this._bndry_edge = value; }
+                get { return this._bndry_edge; }
+            }
+
             public planar_object_store()
             {
                 // Empty constructor used to initialize and re-intialize
                 this._all_points = new List<point2d>();
                 this._all_edges = new List<edge2d>();
-                this._all_instance = new List<instance_tracker>();
             }
 
             public void paint_me(ref Graphics gr1, ref bool is_animate, ref int instance_counter)
             {
                 Graphics gr0 = gr1;
-                if (is_animate == true & instance_counter >= 0 & all_instance.Count != 0)
-                {
-                    all_instance[instance_counter].edge_list.ForEach(obj => obj.paint_me(ref gr0)); // Paint the edges
-                    all_instance[instance_counter].face_list.ForEach(obj => obj.paint_me(ref gr0)); // Paint the faces
-                }
-                else
-                {
+
                     all_edges.ForEach(obj => obj.paint_me(ref gr0)); // Paint the edges
                     all_faces.ForEach(obj => obj.paint_me(ref gr0)); // Paint the faces
-                }
+         
 
                 all_points.ForEach(obj => obj.paint_me(ref gr0)); // Paint the points
-            }
 
-            public class instance_tracker
-            {
-                List<edge2d> _edge_list;
-                List<face2d> _face_list;
-
-                public List<edge2d> edge_list
-                {
-                    set { this._edge_list = value; }
-                    get { return this._edge_list; }
-                }
-
-                public List<face2d> face_list
-                {
-                    set { this._face_list = value; }
-                    get { return this._face_list; }
-                }
+                // Paint the boundary
+                // bndry_pts.ForEach(obj => obj.paint_me(ref gr0));
+                bndry_edge.ForEach(obj => obj.paint_me(ref gr0));
             }
 
             public class point2d // class to store the points
@@ -361,7 +350,7 @@ namespace Delaunay_triangulation_BW
                 timer1.Enabled = false;
             }
 
-
+            step_count = 0;
             mt_pic.Refresh();// Refresh the paint region
         }
 
@@ -369,41 +358,63 @@ namespace Delaunay_triangulation_BW
         {
             // start of the delaunay triangulation 
             main_drw_obj.all_edges = new List<planar_object_store.edge2d>(); // reinitialize the edge lists
-            main_drw_obj.all_instance = new List<planar_object_store.instance_tracker>(); // reinitialize the instances lists
-                                                                                          //the_static_class.instance_counter_at = -1;
+            main_drw_obj.all_faces = new List<planar_object_store.face2d>(); // reinitialize the face lists
+                                                                                        
 
             List<planar_object_store.edge2d> temp_edges = new List<planar_object_store.edge2d>();
             List<planar_object_store.face2d> temp_faces = new List<planar_object_store.face2d>();
-            List<planar_object_store.instance_tracker> temp_instances = new List<planar_object_store.instance_tracker>();
-
+           
             //(new delaunay_divide_n_conquer()).delaunay_start(main_drw_obj.all_points, ref temp_edges, ref temp_instances);
             // Delaunay Triangulation 
-           // (new delaunay_triangulation_divide_n_conquer()).delaunay_start(main_drw_obj.all_points, ref temp_edges, ref temp_faces, ref temp_instances);
+            // (new delaunay_triangulation_divide_n_conquer()).delaunay_start(main_drw_obj.all_points, ref temp_edges, ref temp_faces, ref temp_instances);
+            mesh_data = new delaunay_triangulation.mesh_store();
+            mesh_data.create_whole_mesh(main_drw_obj.bndry_pts, main_drw_obj.all_points,
+                ref temp_edges,
+                ref temp_faces);
 
             main_drw_obj.all_edges = temp_edges;
             main_drw_obj.all_faces = temp_faces;
-            main_drw_obj.all_instance = temp_instances;
 
-            //the_static_class.instance_counter_at = 0;
-            if (the_static_class.is_animate_checked == true)
-            {
-                timer1.Enabled = true; // Timer to control the animation display
-            }
-
+            step_count = 0;
             mt_pic.Refresh();// Refresh the paint region
         }
 
+        private int step_count = 0;
+
+        private void button_step_Click(object sender, EventArgs e)
+        {
+            List<planar_object_store.edge2d> temp_edges = new List<planar_object_store.edge2d>();
+            List<planar_object_store.face2d> temp_faces = new List<planar_object_store.face2d>();
+
+
+            if (step_count == main_drw_obj.all_points.Count)
+            {
+                step_count = 0;
+                // start of the delaunay triangulation 
+                main_drw_obj.all_edges = new List<planar_object_store.edge2d>(); // reinitialize the edge lists
+                main_drw_obj.all_faces = new List<planar_object_store.face2d>(); // reinitialize the face lists
+
+                mesh_data = new delaunay_triangulation.mesh_store();
+            }
+
+
+            mesh_data.create_mesh_step_by_step(main_drw_obj.bndry_pts, main_drw_obj.all_points,
+                ref temp_edges,
+                ref temp_faces,
+                step_count);
+
+            main_drw_obj.all_edges = temp_edges;
+            main_drw_obj.all_faces = temp_faces;
+
+            step_count++;
+            mt_pic.Refresh();// Refresh the paint region
+
+        }
+
+
+
         private void timer1_Tick(object sender, EventArgs e)
         {
-            // Timer tick
-            if (the_static_class.instance_counter_at == main_drw_obj.all_instance.Count - 1)
-            {
-                the_static_class.instance_counter_at = 0;
-            }
-            else
-            {
-                the_static_class.instance_counter_at++;
-            }
             mt_pic.Refresh();
         }
 
@@ -412,7 +423,7 @@ namespace Delaunay_triangulation_BW
             // set canvas size when form loads
             main_drw_obj = new planar_object_store(); // intialize the main drawing object
             initiate_canvas_size();
-
+            
             //(int)(the_static_class.canvas_size.Width * 0.5); // limits to create x random number
             //(int)(the_static_class.canvas_size.Height * 0.5); // limits to create y random number
             generate_random_points(10, (int)(the_static_class.canvas_size.Width * 0.5), (int)(the_static_class.canvas_size.Height * 0.5)); // Generate 10 Random points when the form loads
@@ -447,6 +458,25 @@ namespace Delaunay_triangulation_BW
             // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             // copy to the main list
             main_drw_obj.all_points = temp_pt_list;
+
+            // Add boundary edges
+            planar_object_store.point2d[] x_sorted = temp_pt_list.OrderBy(obj => obj.x).ToArray();
+            planar_object_store.point2d[] y_sorted = temp_pt_list.OrderBy(obj => obj.y).ToArray();
+
+            int gap = 10;
+
+            main_drw_obj.bndry_pts.Add(new planar_object_store.point2d(0, x_sorted[0].x - gap, y_sorted[0].y - gap));
+            main_drw_obj.bndry_pts.Add(new planar_object_store.point2d(1, x_sorted[0].x - gap, y_sorted[y_sorted.Count() - 1].y + gap));
+            main_drw_obj.bndry_pts.Add(new planar_object_store.point2d(2, x_sorted[x_sorted.Count() - 1].x + gap, y_sorted[y_sorted.Count() - 1].y + gap));
+            main_drw_obj.bndry_pts.Add(new planar_object_store.point2d(3, x_sorted[x_sorted.Count() - 1].x + gap, y_sorted[0].y - gap));
+
+
+            main_drw_obj.bndry_edge.Add(new planar_object_store.edge2d(0, main_drw_obj.bndry_pts[0], main_drw_obj.bndry_pts[1]));
+            main_drw_obj.bndry_edge.Add(new planar_object_store.edge2d(1, main_drw_obj.bndry_pts[1], main_drw_obj.bndry_pts[2]));
+            main_drw_obj.bndry_edge.Add(new planar_object_store.edge2d(2, main_drw_obj.bndry_pts[2], main_drw_obj.bndry_pts[3]));
+            main_drw_obj.bndry_edge.Add(new planar_object_store.edge2d(3, main_drw_obj.bndry_pts[3], main_drw_obj.bndry_pts[0]));
+
+            step_count = 0;
             // List<PointF> temp_rand_pts = Enumerable.Range(0,point_count).Select(obj => the_static_class.random_point(-x_coord_limit, x_coord_limit,-y_coord_limit, y_coord_limit)).ToList();
 
 
@@ -562,24 +592,6 @@ namespace Delaunay_triangulation_BW
         }
 
         #region "Check Box Events"
-        private void checkBox_animate_CheckedChanged(object sender, EventArgs e)
-        {
-            if (checkBox_animate.Checked == true)
-            {
-                the_static_class.is_animate_checked = true;
-                the_static_class.instance_counter_at = 0;
-                timer1.Interval = the_static_class.inpt_timer_interval; // 0.5 seconds
-                timer1.Enabled = true;
-            }
-            else
-            {
-                the_static_class.is_animate_checked = false;
-                the_static_class.instance_counter_at = 0;
-                timer1.Interval = the_static_class.inpt_timer_interval; // 0.5 seconds
-                timer1.Enabled = false;
-            }
-            mt_pic.Refresh();
-        }
 
         private void checkBox_coord_CheckedChanged(object sender, EventArgs e)
         {

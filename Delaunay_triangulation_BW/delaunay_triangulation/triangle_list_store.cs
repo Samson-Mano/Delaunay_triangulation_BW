@@ -48,14 +48,14 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             double i_shortest_edge_length, double i_circum_radius)
         {
             // Add triangle
-            int tri_index = get_unique_triangle_id();
-            this.all_triangles.Add(new triangle_store(tri_index, i_pt1_id, i_pt2_id, i_pt3_id,
+            int tri_id = get_unique_triangle_id();
+            this.all_triangles.Add(new triangle_store(tri_id, i_pt1_id, i_pt2_id, i_pt3_id,
                 i_edge1_id, i_edge2_id, i_edge3_id,
                 i_mid_pt, i_circum_center,
                 i_shortest_edge_length, i_circum_radius)
                 );
 
-            return tri_index;
+            return tri_id;
         }
 
         public double get_triangle_shortest_edge()
