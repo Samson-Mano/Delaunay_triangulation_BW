@@ -41,6 +41,7 @@
             this.checkBox_mesh = new System.Windows.Forms.CheckBox();
             this.button_step = new System.Windows.Forms.Button();
             this.button_import = new System.Windows.Forms.Button();
+            this.button_smooth = new System.Windows.Forms.Button();
             this.main_pic.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mt_pic)).BeginInit();
             this.SuspendLayout();
@@ -92,7 +93,7 @@
             this.main_pic.Controls.Add(this.mt_pic);
             this.main_pic.Location = new System.Drawing.Point(12, 68);
             this.main_pic.Name = "main_pic";
-            this.main_pic.Size = new System.Drawing.Size(906, 685);
+            this.main_pic.Size = new System.Drawing.Size(1003, 685);
             this.main_pic.TabIndex = 5;
             this.main_pic.SizeChanged += new System.EventHandler(this.main_pic_SizeChanged);
             this.main_pic.Paint += new System.Windows.Forms.PaintEventHandler(this.main_pic_Paint);
@@ -104,7 +105,7 @@
             this.mt_pic.Enabled = false;
             this.mt_pic.Location = new System.Drawing.Point(0, 0);
             this.mt_pic.Name = "mt_pic";
-            this.mt_pic.Size = new System.Drawing.Size(902, 681);
+            this.mt_pic.Size = new System.Drawing.Size(999, 681);
             this.mt_pic.TabIndex = 0;
             this.mt_pic.TabStop = false;
             // 
@@ -115,7 +116,7 @@
             // checkBox_coord
             // 
             this.checkBox_coord.AutoSize = true;
-            this.checkBox_coord.Location = new System.Drawing.Point(629, 30);
+            this.checkBox_coord.Location = new System.Drawing.Point(781, 28);
             this.checkBox_coord.Name = "checkBox_coord";
             this.checkBox_coord.Size = new System.Drawing.Size(70, 24);
             this.checkBox_coord.TabIndex = 6;
@@ -126,7 +127,7 @@
             // checkBox_incircle
             // 
             this.checkBox_incircle.AutoSize = true;
-            this.checkBox_incircle.Location = new System.Drawing.Point(705, 30);
+            this.checkBox_incircle.Location = new System.Drawing.Point(857, 28);
             this.checkBox_incircle.Name = "checkBox_incircle";
             this.checkBox_incircle.Size = new System.Drawing.Size(89, 24);
             this.checkBox_incircle.TabIndex = 7;
@@ -137,7 +138,7 @@
             // checkBox_mesh
             // 
             this.checkBox_mesh.AutoSize = true;
-            this.checkBox_mesh.Location = new System.Drawing.Point(780, 30);
+            this.checkBox_mesh.Location = new System.Drawing.Point(932, 28);
             this.checkBox_mesh.Name = "checkBox_mesh";
             this.checkBox_mesh.Size = new System.Drawing.Size(69, 24);
             this.checkBox_mesh.TabIndex = 8;
@@ -165,11 +166,22 @@
             this.button_import.UseVisualStyleBackColor = true;
             this.button_import.Click += new System.EventHandler(this.button_import_Click);
             // 
+            // button_smooth
+            // 
+            this.button_smooth.Location = new System.Drawing.Point(606, 28);
+            this.button_smooth.Name = "button_smooth";
+            this.button_smooth.Size = new System.Drawing.Size(103, 23);
+            this.button_smooth.TabIndex = 11;
+            this.button_smooth.Text = "Smooth";
+            this.button_smooth.UseVisualStyleBackColor = true;
+            this.button_smooth.Click += new System.EventHandler(this.button_smooth_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(930, 765);
+            this.ClientSize = new System.Drawing.Size(1027, 765);
+            this.Controls.Add(this.button_smooth);
             this.Controls.Add(this.button_import);
             this.Controls.Add(this.button_step);
             this.Controls.Add(this.checkBox_mesh);
@@ -181,7 +193,7 @@
             this.Controls.Add(this.textBox_input);
             this.Controls.Add(this.label1);
             this.Font = new System.Drawing.Font("Cambria", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.MinimumSize = new System.Drawing.Size(200, 600);
+            this.MinimumSize = new System.Drawing.Size(600, 600);
             this.Name = "Form1";
             this.Text = "Bowyer Watson - Delaunay Triangulation";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -206,6 +218,7 @@
         private System.Windows.Forms.CheckBox checkBox_mesh;
         private System.Windows.Forms.Button button_step;
         private System.Windows.Forms.Button button_import;
+        private System.Windows.Forms.Button button_smooth;
     }
 }
 

@@ -563,6 +563,13 @@ namespace Delaunay_triangulation_BW
         }
 
 
+        private void button_smooth_Click(object sender, EventArgs e)
+        {
+            // Smooth the mesh
+
+
+
+        }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
