@@ -40,6 +40,7 @@
             this.checkBox_incircle = new System.Windows.Forms.CheckBox();
             this.checkBox_mesh = new System.Windows.Forms.CheckBox();
             this.button_step = new System.Windows.Forms.Button();
+            this.button_import = new System.Windows.Forms.Button();
             this.main_pic.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mt_pic)).BeginInit();
             this.SuspendLayout();
@@ -65,7 +66,7 @@
             // 
             this.button_points.Location = new System.Drawing.Point(198, 28);
             this.button_points.Name = "button_points";
-            this.button_points.Size = new System.Drawing.Size(112, 24);
+            this.button_points.Size = new System.Drawing.Size(86, 24);
             this.button_points.TabIndex = 2;
             this.button_points.Text = "Generate Points";
             this.button_points.UseVisualStyleBackColor = true;
@@ -73,9 +74,9 @@
             // 
             // button_delaunay
             // 
-            this.button_delaunay.Location = new System.Drawing.Point(316, 29);
+            this.button_delaunay.Location = new System.Drawing.Point(388, 29);
             this.button_delaunay.Name = "button_delaunay";
-            this.button_delaunay.Size = new System.Drawing.Size(112, 23);
+            this.button_delaunay.Size = new System.Drawing.Size(103, 23);
             this.button_delaunay.TabIndex = 3;
             this.button_delaunay.Text = "Triangulate";
             this.button_delaunay.UseVisualStyleBackColor = true;
@@ -146,19 +147,30 @@
             // 
             // button_step
             // 
-            this.button_step.Location = new System.Drawing.Point(434, 28);
+            this.button_step.Location = new System.Drawing.Point(497, 28);
             this.button_step.Name = "button_step";
-            this.button_step.Size = new System.Drawing.Size(121, 24);
+            this.button_step.Size = new System.Drawing.Size(103, 24);
             this.button_step.TabIndex = 9;
             this.button_step.Text = "Step";
             this.button_step.UseVisualStyleBackColor = true;
             this.button_step.Click += new System.EventHandler(this.button_step_Click);
+            // 
+            // button_import
+            // 
+            this.button_import.Location = new System.Drawing.Point(290, 30);
+            this.button_import.Name = "button_import";
+            this.button_import.Size = new System.Drawing.Size(91, 22);
+            this.button_import.TabIndex = 10;
+            this.button_import.Text = "Import";
+            this.button_import.UseVisualStyleBackColor = true;
+            this.button_import.Click += new System.EventHandler(this.button_import_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(930, 765);
+            this.Controls.Add(this.button_import);
             this.Controls.Add(this.button_step);
             this.Controls.Add(this.checkBox_mesh);
             this.Controls.Add(this.checkBox_incircle);
@@ -171,7 +183,7 @@
             this.Font = new System.Drawing.Font("Cambria", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.MinimumSize = new System.Drawing.Size(200, 600);
             this.Name = "Form1";
-            this.Text = "Divide and Conquer - Delaunay Triangulation";
+            this.Text = "Bowyer Watson - Delaunay Triangulation";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.main_pic.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.mt_pic)).EndInit();
@@ -193,6 +205,7 @@
         private System.Windows.Forms.CheckBox checkBox_incircle;
         private System.Windows.Forms.CheckBox checkBox_mesh;
         private System.Windows.Forms.Button button_step;
+        private System.Windows.Forms.Button button_import;
     }
 }
 

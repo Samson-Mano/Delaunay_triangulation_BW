@@ -8,7 +8,7 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
 {
     public class triangle_list_store
     {
-        public HashSet<triangle_store> all_triangles { get; private set; }
+        private Dictionary<int, triangle_store> all_triangles;
         private HashSet<int> unique_triangleid_list = new HashSet<int>();
 
         public int triangles_count { get { return all_triangles.Count; } }
@@ -16,19 +16,21 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
         public triangle_list_store()
         {
             // Empty constructor
-            this.all_triangles = new HashSet<triangle_store>();
+            this.all_triangles = new Dictionary<int, triangle_store>();
         }
 
-        public int get_point_containing_triangle(point_store pt, point_list_store pt_datas)
+        public int get_point_containing_triangle(int the_pt_id, point_list_store pt_datas)
         {
             // Order the triangle with closest to mid point
-            point_to_triange_mid_distance_comparer mdist_comparer = new point_to_triange_mid_distance_comparer(pt.pt_coord);
-            List<triangle_store> sorted_triangle = all_triangles.OrderBy(obj => obj, mdist_comparer).ToList();
+            point_store the_pt = pt_datas.get_point(the_pt_id);
+            // point_to_triange_mid_distance_comparer mdist_comparer = new point_to_triange_mid_distance_comparer(the_pt.pt_coord);
+            // List<triangle_store> sorted_triangle = get_all_triangles().OrderBy(obj => obj, mdist_comparer).ToList();
+            List<triangle_store> q_triangle = get_all_triangles().FindAll(obj => obj.is_point_inside_circumcircle(the_pt.pt_coord));
 
             // returns the triangle which contains this point
-            foreach (triangle_store tri in sorted_triangle)
+            foreach (triangle_store tri in q_triangle)
             {
-                if (is_point_inside(pt.pt_coord,
+                if (is_point_inside(the_pt.pt_coord,
                     pt_datas.get_point(tri.pt1_id).pt_coord,
                     pt_datas.get_point(tri.pt2_id).pt_coord,
                     pt_datas.get_point(tri.pt3_id).pt_coord) == true)
@@ -49,7 +51,7 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
         {
             // Add triangle
             int tri_id = get_unique_triangle_id();
-            this.all_triangles.Add(new triangle_store(tri_id, i_pt1_id, i_pt2_id, i_pt3_id,
+            this.all_triangles.Add(tri_id, new triangle_store(tri_id, i_pt1_id, i_pt2_id, i_pt3_id,
                 i_edge1_id, i_edge2_id, i_edge3_id,
                 i_mid_pt, i_circum_center,
                 i_shortest_edge_length, i_circum_radius)
@@ -60,7 +62,7 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
 
         public double get_triangle_shortest_edge()
         {
-            List<triangle_store> tri_l = this.all_triangles.ToList();
+            List<triangle_store> tri_l = get_all_triangles();
 
             double shortest_edge = Double.MaxValue;
 
@@ -78,7 +80,7 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
 
         public triangle_store get_bad_triangle(List<point_d> outter_bndry_pts, double Bv, double Hv)
         {
-            List<triangle_store> tri_l = this.all_triangles.ToList();
+            List<triangle_store> tri_l = get_all_triangles();
 
             foreach (triangle_store bad_triangle in tri_l)
             {
@@ -110,25 +112,25 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
         {
             // Remove the triangle
             unique_triangleid_list.Add(r_tri_id);
-            this.all_triangles.Remove(this.get_triangle(r_tri_id));
+            this.all_triangles.Remove(r_tri_id);
         }
 
         public (int pt1_id, int pt2_id, int pt3_id) get_specific_triangle_point_ids(int tri_id)
         {
             // Return the 3 pt_ids of the triangle tri_id 
-            return this.all_triangles.First(t => t.Equals(tri_id)).get_point_ids();
+            return get_triangle(tri_id).get_point_ids();
         }
 
         public (int e1_id, int e2_id, int e3_id) get_specific_triangle_edge_ids(int tri_id)
         {
             // Return the 3 edge_ids of the triangle tri_id
-            return this.all_triangles.First(t => t.Equals(tri_id)).get_edge_ids();
+            return get_triangle(tri_id).get_edge_ids();
         }
 
         public bool is_point_in_specific_triangle_circumcircle(int tri_id, point_d pt)
         {
             // Return whether the given pt lies inside the in_circle
-            return this.all_triangles.First(t => t.Equals(tri_id)).is_point_inside_circumcircle(pt);
+            return get_triangle(tri_id).is_point_inside_circumcircle(pt);
         }
 
         // Tests if a 2D point lies inside this 2D triangle.See Real-Time Collision
@@ -229,9 +231,19 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             return tri_id;
         }
 
+        public List<triangle_store> get_all_triangles()
+        {
+            return this.all_triangles.Values.ToList();
+        }
+
         public triangle_store get_triangle(int tri_id)
         {
-            return this.all_triangles.First(t => t.Equals(tri_id));
+            triangle_store tri;
+            if (this.all_triangles.TryGetValue(tri_id, out tri) == true)
+            {
+                return tri;
+            }
+            return null;
         }
     }
 }

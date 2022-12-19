@@ -15,13 +15,15 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
 
         public int end_pt_id { get; private set; }
 
+        public point_d mid_pt { get; private set; }
+
         public int left_triangle_id { get; private set; }
 
         public int right_triangle_id { get; private set; }
 
         public double edge_length { get; private set; }
 
-        public edge_store(int i_edge_id, int i_start_pt_id, int i_end_pt_id, double i_edge_length)
+        public edge_store(int i_edge_id, int i_start_pt_id, int i_end_pt_id, point_d i_mid_pt, double i_edge_length)
         {
             // Empty Constructor
             // set id
@@ -34,6 +36,8 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             this.left_triangle_id = -1;
             this.right_triangle_id = -1;
 
+            // Set the mid & edges
+            this.mid_pt = i_mid_pt;
             this.edge_length = i_edge_length;
             //______________________________________________________________
         }
@@ -68,6 +72,11 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
                 return this.right_triangle_id;
             }
             return -1;
+        }
+
+        public bool is_pt_inside_midcircle(point_d pt)
+        {
+            return ((pt.x - mid_pt.x) * (pt.x - mid_pt.x) + (pt.y - mid_pt.y) * (pt.y - mid_pt.y)) < ((edge_length * edge_length) / 4);
         }
 
         private bool ccw(point_d a, point_d b, point_d c)

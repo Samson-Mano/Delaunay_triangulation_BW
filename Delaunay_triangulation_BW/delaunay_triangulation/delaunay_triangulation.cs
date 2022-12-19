@@ -45,28 +45,29 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
         public void Add_multiple_points(List<point_store> p_inpt_points)
         {
             // create_super_triangle(p_inpt_points);
+            int pt_id;
 
             foreach (point_store i_pt in p_inpt_points)
             {
 
                 // incemental add point
-                points_data.add_point(i_pt);
+                pt_id = points_data.add_point(i_pt);
 
                 // Check whether point lies on edges
-                int containing_edge_id = edges_data.get_point_containing_edge(i_pt, points_data);
+                int containing_edge_id = edges_data.get_point_containing_edge(pt_id, points_data);
                 if (containing_edge_id != -1)
                 {
                     // Point addition to edge
-                    incremental_point_addition_edge(i_pt, containing_edge_id);
+                    incremental_point_addition_edge(pt_id, containing_edge_id);
                 }
                 else
                 {
                     // Check whether point lies inside triangle
-                    int containing_triangle_id = triangles_data.get_point_containing_triangle(i_pt, points_data);
+                    int containing_triangle_id = triangles_data.get_point_containing_triangle(pt_id, points_data);
                     if (containing_triangle_id != -1)
                     {
                         // Point addition to the triangle
-                        incremental_point_addition_inner(i_pt, containing_triangle_id);
+                        incremental_point_addition_inner(pt_id, containing_triangle_id);
                     }
                     else
                     {
@@ -79,25 +80,25 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
         public void Add_single_point(point_d circumcenter_point)
         {
             // dont call this before calling Add_multiple_points
-            point_store temp_pt = new point_store(points_data.points_count, circumcenter_point.x, circumcenter_point.y, 3);
+            point_store temp_pt = new point_store(-1, circumcenter_point.x, circumcenter_point.y, 3);
             // Add the point to local list
-            points_data.add_point(temp_pt);
+            int pt_id = points_data.add_point(temp_pt);
 
             // Check whether point lies on edges
-            int containing_edge_id = edges_data.get_point_containing_edge(temp_pt, points_data);
+            int containing_edge_id = edges_data.get_point_containing_edge(pt_id, points_data);
             if (containing_edge_id != -1)
             {
                 // Point addition to edge
-                incremental_point_addition_edge(temp_pt, containing_edge_id);
+                incremental_point_addition_edge(pt_id, containing_edge_id);
             }
             else
             {
                 // Check whether point lies inside triangle
-                int containing_triangle_id = triangles_data.get_point_containing_triangle(temp_pt, points_data);
+                int containing_triangle_id = triangles_data.get_point_containing_triangle(pt_id, points_data);
                 if (containing_triangle_id != -1)
                 {
                     // Point addition to the triangle
-                    incremental_point_addition_inner(temp_pt, containing_triangle_id);
+                    incremental_point_addition_inner(pt_id, containing_triangle_id);
                 }
                 else
                 {
@@ -106,9 +107,10 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             }
         }
 
-        private void incremental_point_addition_inner(point_store pt, int containing_triangle_id)
+        private void incremental_point_addition_inner(int pt_id, int containing_triangle_id)
         {
             // collect the edges of the triangle
+            point_store pt = this.points_data.get_point(pt_id);  
             (int e1, int e2, int e3) tri_edges = this.triangles_data.get_specific_triangle_edge_ids(containing_triangle_id);
             // collect the points of the triangle
             (int p1, int p2, int p3) tri_pts = this.triangles_data.get_specific_triangle_point_ids(containing_triangle_id);
@@ -137,9 +139,10 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             flip_bad_edges(triangle_id[2], pt);
         }
 
-        private void incremental_point_addition_edge(point_store pt, int containing_edge_id)
+        private void incremental_point_addition_edge(int pt_id, int containing_edge_id)
         {
             // Point lies on the edge
+            point_store pt = this.points_data.get_point(pt_id);
             edge_store inc_edge = this.edges_data.get_edge(containing_edge_id);
 
             // Get the left and right triangle id of the edge
@@ -202,22 +205,26 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             // Add Edge 1
             point_store pt1 = points_data.get_point(tri_corner_four_pts[0]);
             double edge_len_1 = get_edge_length(new_pt.pt_coord, pt1.pt_coord);
-            edge_indices[0] = edges_data.add_edge(new_pt.pt_id, pt1.pt_id, edge_len_1);
+            point_d mid_pt_1 = get_edge_midpt(new_pt.pt_coord, pt1.pt_coord);
+            edge_indices[0] = edges_data.add_edge(new_pt.pt_id, pt1.pt_id, mid_pt_1, edge_len_1);
 
             // Add Edge 2
             point_store pt2 = points_data.get_point(tri_corner_four_pts[1]);
             double edge_len_2 = get_edge_length(new_pt.pt_coord, pt2.pt_coord);
-            edge_indices[1] = edges_data.add_edge(new_pt.pt_id, pt2.pt_id, edge_len_2);
+            point_d mid_pt_2 = get_edge_midpt(new_pt.pt_coord, pt2.pt_coord);
+            edge_indices[1] = edges_data.add_edge(new_pt.pt_id, pt2.pt_id, mid_pt_2, edge_len_2);
 
             // Add Edge 3
             point_store pt3 = points_data.get_point(tri_corner_four_pts[2]);
             double edge_len_3 = get_edge_length(new_pt.pt_coord, pt3.pt_coord);
-            edge_indices[2] = edges_data.add_edge(new_pt.pt_id, pt3.pt_id, edge_len_3);
+            point_d mid_pt_3 = get_edge_midpt(new_pt.pt_coord, pt3.pt_coord);
+            edge_indices[2] = edges_data.add_edge(new_pt.pt_id, pt3.pt_id, mid_pt_3, edge_len_3);
 
             // Add Edge 4
             point_store pt4 = points_data.get_point(tri_corner_four_pts[3]);
             double edge_len_4 = get_edge_length(new_pt.pt_coord, pt4.pt_coord);
-            edge_indices[3] = edges_data.add_edge(new_pt.pt_id, pt4.pt_id, edge_len_4);
+            point_d mid_pt_4 = get_edge_midpt(new_pt.pt_coord, pt4.pt_coord);
+            edge_indices[3] = edges_data.add_edge(new_pt.pt_id, pt4.pt_id, mid_pt_4, edge_len_4);
             //_________________________________________________________________________________
 
 
@@ -271,7 +278,7 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             s_shortest_edge = get_minimum_of_three(edge_len_4, c_edge_len, edge_len_1);
             // Create the triangle 4
             output_indices[3] = triangles_data.add_triangle(new_pt.pt_id, pt4.pt_id, pt1.pt_id,
-                edge_indices[3], tri_corner_four_edges[3], edge_indices[1],
+                edge_indices[3], tri_corner_four_edges[3], edge_indices[0],
                 s_mid_pt, s_incircle_center,
                 s_shortest_edge, s_circum_radius);
             //_________________________________________________________________________________
@@ -312,17 +319,20 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             // Add Edge 1
             point_store pt1 = points_data.get_point(tri_three_pts[0]);
             double edge_len_1 = get_edge_length(new_pt.pt_coord, pt1.pt_coord);
-            edge_indices[0] = edges_data.add_edge(new_pt.pt_id, pt1.pt_id, edge_len_1);
+            point_d mid_pt_1 = get_edge_midpt(new_pt.pt_coord, pt1.pt_coord);
+            edge_indices[0] = edges_data.add_edge(new_pt.pt_id, pt1.pt_id, mid_pt_1, edge_len_1);
 
             // Add Edge 2
             point_store pt2 = points_data.get_point(tri_three_pts[1]);
             double edge_len_2 = get_edge_length(new_pt.pt_coord, pt2.pt_coord);
-            edge_indices[1] = edges_data.add_edge(new_pt.pt_id, pt2.pt_id, edge_len_2);
+            point_d mid_pt_2 = get_edge_midpt(new_pt.pt_coord, pt2.pt_coord);
+            edge_indices[1] = edges_data.add_edge(new_pt.pt_id, pt2.pt_id, mid_pt_2, edge_len_2);
 
             // Add Edge 3
             point_store pt3 = points_data.get_point(tri_three_pts[2]);
             double edge_len_3 = get_edge_length(new_pt.pt_coord, pt3.pt_coord);
-            edge_indices[2] = edges_data.add_edge(new_pt.pt_id, pt3.pt_id, edge_len_3);
+            point_d mid_pt_3 = get_edge_midpt(new_pt.pt_coord, pt3.pt_coord);
+            edge_indices[2] = edges_data.add_edge(new_pt.pt_id, pt3.pt_id, mid_pt_3, edge_len_3);
             //_________________________________________________________________________________
 
             // Add three triangles
@@ -411,7 +421,8 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             // Add Edge 
             point_store other_pt = points_data.get_point(tri_corner_four_pts[2]);
             double edge_len_n = get_edge_length(c_pt.pt_coord, other_pt.pt_coord);
-            edge_index = edges_data.add_edge(c_pt.pt_id, other_pt.pt_id, edge_len_n);
+            point_d mid_pt_n = get_edge_midpt(c_pt.pt_coord, other_pt.pt_coord);
+            edge_index = edges_data.add_edge(c_pt.pt_id, other_pt.pt_id, mid_pt_n, edge_len_n);
             //_________________________________________________________________________________
 
             // Add two triangles
@@ -578,6 +589,11 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
                     // Remove the 1 common edge
                     tri_outside_four_edges_h.Remove(common_edge_id);
 
+                    if (tri_outside_four_edges_h.Count != 4)
+                    {
+                        System.Windows.Forms.MessageBox.Show("Error!! Some points are closer than tolerance", "Error");
+                        return;
+                    }
                     // Remove the common edge
                     edges_data.remove_edge(common_edge_id);
 
@@ -616,7 +632,7 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             double max_x, max_y, k;
             max_x = (x_sorted[x_sorted.Length - 1].pt_coord.x - x_sorted[0].pt_coord.x);
             max_y = (y_sorted[y_sorted.Length - 1].pt_coord.y - y_sorted[0].pt_coord.y);
-            k = 10 * Math.Max(max_x, max_y);
+            k = 100 * Math.Max(max_x, max_y);
 
             // zeoth _point
             double x_zero, y_zero;
@@ -640,15 +656,18 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             int[] stri_edges_id = new int[3];
             // Add Edge 1
             double edge_len_1 = get_edge_length(s_p1.pt_coord, s_p2.pt_coord);
-            stri_edges_id[0] = edges_data.add_edge(s_p1.pt_id, s_p2.pt_id, edge_len_1);
+            point_d mid_pt_1 = get_edge_midpt(s_p1.pt_coord, s_p2.pt_coord);
+            stri_edges_id[0] = edges_data.add_edge(s_p1.pt_id, s_p2.pt_id, mid_pt_1, edge_len_1);
 
             // Add Edge 2
             double edge_len_2 = get_edge_length(s_p2.pt_coord, s_p3.pt_coord);
-            stri_edges_id[1] = edges_data.add_edge(s_p2.pt_id, s_p3.pt_id, edge_len_2);
+            point_d mid_pt_2 = get_edge_midpt(s_p2.pt_coord, s_p3.pt_coord);
+            stri_edges_id[1] = edges_data.add_edge(s_p2.pt_id, s_p3.pt_id, mid_pt_2, edge_len_2);
 
             // Add Edge 3
             double edge_len_3 = get_edge_length(s_p3.pt_coord, s_p1.pt_coord);
-            stri_edges_id[2] = edges_data.add_edge(s_p3.pt_id, s_p1.pt_id, edge_len_3);
+            point_d mid_pt_3 = get_edge_midpt(s_p3.pt_coord, s_p1.pt_coord);
+            stri_edges_id[2] = edges_data.add_edge(s_p3.pt_id, s_p1.pt_id, mid_pt_3, edge_len_3);
             //_________________________________________________________________________________
 
 
@@ -679,6 +698,12 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
         {
             // Mid point of triangle
             return new point_d((pt1.x + pt2.x + pt3.x) / 3.0f, (pt1.y + pt2.y + pt3.y) / 3.0f);
+        }
+
+        private point_d get_edge_midpt(point_d pt1, point_d pt2)
+        {
+            // Mid point of triangle
+            return new point_d((pt1.x + pt2.x) / 2.0f, (pt1.y + pt2.y) / 2.0f);
         }
 
         private point_d get_triangle_incircle_center(point_d pt1, point_d pt2, point_d pt3)

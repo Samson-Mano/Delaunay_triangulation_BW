@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Drawing;
 
 namespace Delaunay_triangulation_BW.delaunay_triangulation
 {
@@ -10,16 +12,12 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
     {
         List<point_d> boundary_pts = new List<point_d>();
         private int _step_control = 0;
-        delaunay_triangulation BW_delaunay = new delaunay_triangulation();
+        delaunay_triangulation BW_delaunay;
 
         public mesh_store()
         {
-
-        }
-
-        public void clear_mesh()
-        {
-
+            // Empty constructor
+            BW_delaunay = new delaunay_triangulation();
         }
 
         public void create_whole_mesh(List<Form1.planar_object_store.point2d> bndr_pts,
@@ -42,6 +40,10 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
                 pt_id++;
             }
 
+
+            var watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
+
             foreach (point_store pt in input_pt_converted)
             {
                 if (_step_control == 0)
@@ -49,18 +51,33 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
                     // Create super triangle
                     BW_delaunay.create_super_triangle(input_pt_converted);
                 }
-
+                
                 BW_delaunay.Add_single_point(pt.pt_coord);
                 _step_control++;
 
             }
+
+            watch.Stop();
+            System.Windows.Forms.MessageBox.Show("Elapsed Time for " + _step_control.ToString() + " points = " + ((double)watch.ElapsedMilliseconds) + " ms", "Time taken");
+
+            //string print_time_elapese = "";
+            //int pt_count = 1;
+            //foreach (double w in time_taken_per_pt)
+            //{
+            //    print_time_elapese = print_time_elapese + "pt" + pt_count.ToString() + " " + w.ToString() + " ms" + Environment.NewLine;
+            //    pt_count++;
+            //}
+
+            //Show_error_Dialog("Elapsed Time", print_time_elapese);
+
+
 
             // Convert the result to native data
             output_edges = new List<Form1.planar_object_store.edge2d>();
             output_triangles = new List<Form1.planar_object_store.face2d>();
 
             // Edge data
-            foreach (edge_store edge in BW_delaunay.edges_data.all_edges)
+            foreach (edge_store edge in BW_delaunay.edges_data.get_all_edges())
             {
                 point_store pt1 = BW_delaunay.points_data.get_point(edge.start_pt_id);
                 point_store pt2 = BW_delaunay.points_data.get_point(edge.end_pt_id);
@@ -75,7 +92,7 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
 
 
             // Triangles data
-            foreach (triangle_store tri in BW_delaunay.triangles_data.all_triangles)
+            foreach (triangle_store tri in BW_delaunay.triangles_data.get_all_triangles())
             {
                 point_store pt1 = BW_delaunay.points_data.get_point(tri.pt1_id);
                 point_store pt2 = BW_delaunay.points_data.get_point(tri.pt2_id);
@@ -89,6 +106,27 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
 
                 output_triangles.Add(face_o);
             }
+        }
+        public static void Show_error_Dialog(string title, string text)
+        {
+            var form = new Form()
+            {
+                Text = title,
+                Size = new Size(800, 600)
+            };
+
+            form.Controls.Add(new TextBox()
+            {
+                Font = new Font("Segoe UI", 12),
+                Text = text,
+                Multiline = true,
+                ScrollBars = ScrollBars.Both,
+                Dock = DockStyle.Fill
+            });
+
+            form.ShowDialog();
+            form.Controls.OfType<TextBox>().First().Dispose();
+            form.Dispose();
         }
 
         public void create_mesh_step_by_step(List<Form1.planar_object_store.point2d> bndr_pts,
@@ -128,7 +166,7 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             output_triangles = new List<Form1.planar_object_store.face2d>();
 
             // Edge data
-            foreach (edge_store edge in BW_delaunay.edges_data.all_edges)
+            foreach (edge_store edge in BW_delaunay.edges_data.get_all_edges())
             {
                 point_store pt1 = BW_delaunay.points_data.get_point(edge.start_pt_id);
                 point_store pt2 = BW_delaunay.points_data.get_point(edge.end_pt_id);
@@ -143,7 +181,7 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
 
 
             // Triangles data
-            foreach (triangle_store tri in BW_delaunay.triangles_data.all_triangles)
+            foreach (triangle_store tri in BW_delaunay.triangles_data.get_all_triangles())
             {
                 point_store pt1 = BW_delaunay.points_data.get_point(tri.pt1_id);
                 point_store pt2 = BW_delaunay.points_data.get_point(tri.pt2_id);

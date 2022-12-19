@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -21,7 +22,7 @@ namespace Delaunay_triangulation_BW
             List<point2d> _all_points = new List<point2d>(); // List of point object to store all the points in the drawing area
             List<edge2d> _all_edges = new List<edge2d>(); // List of edge object to store all the edges created from Delaunay triangulation
             List<face2d> _all_faces = new List<face2d>(); // List of face object to store all the faces created from Delaunay triangulation
-       
+
             // Boundary points
             List<edge2d> _bndry_edge = new List<edge2d>();
             List<point2d> _bndry_pts = new List<point2d>();
@@ -63,19 +64,18 @@ namespace Delaunay_triangulation_BW
                 this._all_edges = new List<edge2d>();
             }
 
-            public void paint_me(ref Graphics gr1, ref bool is_animate, ref int instance_counter)
+            public void paint_me(ref Graphics gr1)
             {
                 Graphics gr0 = gr1;
 
-                    all_edges.ForEach(obj => obj.paint_me(ref gr0)); // Paint the edges
-                    all_faces.ForEach(obj => obj.paint_me(ref gr0)); // Paint the faces
-         
+                all_faces.ForEach(obj => obj.paint_me(ref gr0)); // Paint the faces
+                all_edges.ForEach(obj => obj.paint_me(ref gr0)); // Paint the edges
 
                 all_points.ForEach(obj => obj.paint_me(ref gr0)); // Paint the points
 
                 // Paint the boundary
                 // bndry_pts.ForEach(obj => obj.paint_me(ref gr0));
-                bndry_edge.ForEach(obj => obj.paint_me(ref gr0));
+                // bndry_edge.ForEach(obj => obj.paint_me(ref gr0));
             }
 
             public class point2d // class to store the points
@@ -109,16 +109,16 @@ namespace Delaunay_triangulation_BW
                 {
                     gr0.FillEllipse(new Pen(Color.BlueViolet, 2).Brush, new RectangleF(get_point_for_ellipse(), new SizeF(4, 4)));
 
-                    if (the_static_class.ispaint_label == true)
-                    {
-                        string my_string = (this.id + 1).ToString() + "(" + this._x.ToString("F2") + ", " + this._y.ToString("F2") + ")";
-                        SizeF str_size = gr0.MeasureString(my_string, new Font("Cambria", 6)); // Measure string size to position the dimension
+                    //if (the_static_class.ispaint_label == true)
+                    //{
+                    //    string my_string = this.id.ToString() + "(" + this._x.ToString("F2") + ", " + this._y.ToString("F2") + ")";
+                    //    SizeF str_size = gr0.MeasureString(my_string, new Font("Cambria", 6)); // Measure string size to position the dimension
 
-                        gr0.DrawString(my_string, new Font("Cambria", 6),
-                                                                           new Pen(Color.DarkBlue, 2).Brush,
-                                                                           get_point_for_ellipse().X + 3 + the_static_class.to_single(-str_size.Width * 0.5),
-                                                                           the_static_class.to_single(str_size.Height * 0.5) + get_point_for_ellipse().Y + 3);
-                    }
+                    //    gr0.DrawString(my_string, new Font("Cambria", 6),
+                    //                                                       new Pen(Color.DarkBlue, 2).Brush,
+                    //                                                       get_point_for_ellipse().X + 3 + the_static_class.to_single(-str_size.Width * 0.5),
+                    //                                                       the_static_class.to_single(str_size.Height * 0.5) + get_point_for_ellipse().Y + 3);
+                    //}
                 }
 
                 public PointF get_point_for_ellipse()
@@ -195,6 +195,17 @@ namespace Delaunay_triangulation_BW
                     //System.Drawing.Drawing2D.AdjustableArrowCap bigArrow = new System.Drawing.Drawing2D.AdjustableArrowCap(3, 3);
                     //edge_pen.CustomEndCap = bigArrow;
                     //gr0.DrawLine(edge_pen, start_pt.get_point(), mid_pt.get_point());
+
+                    if (the_static_class.ispaint_label == true)
+                    {
+                        string my_string = (this._edge_id).ToString() + "(" + this._start_pt.id.ToString() + "-> " + this.end_pt.id.ToString() + ")";
+                        SizeF str_size = gr0.MeasureString(my_string, new Font("Cambria", 6)); // Measure string size to position the dimension
+
+                        gr0.DrawString(my_string, new Font("Cambria", 6),
+                                                                           new Pen(Color.DarkBlue, 2).Brush,
+                                                                          this._mid_pt.get_point_for_ellipse().X + 3 + the_static_class.to_single(-str_size.Width * 0.5),
+                                                                           the_static_class.to_single(str_size.Height * 0.5) + this._mid_pt.get_point_for_ellipse().Y + 3);
+                    }
                 }
 
                 public bool Equals(edge2d other)
@@ -344,26 +355,166 @@ namespace Delaunay_triangulation_BW
                MessageBoxDefaultButton.Button1);
             }
 
-            if (the_static_class.is_animate_checked == true)
-            {
-                the_static_class.instance_counter_at = -1;
-                timer1.Enabled = false;
-            }
-
             step_count = 0;
             mt_pic.Refresh();// Refresh the paint region
         }
+
+        private void button_import_Click(object sender, EventArgs e)
+        {
+            // Import the points
+            // Import of Nodes from a Text File
+            OpenFileDialog openfiledialog1 = new OpenFileDialog();
+
+            //openFileDialog1.InitialDirectory = "c:\"
+            openfiledialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            openfiledialog1.FilterIndex = 2;
+            openfiledialog1.RestoreDirectory = true;
+
+            if (openfiledialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                try
+                {
+                    // StreamReader txtreader = new StreamReader(File.OpenRead(openfiledialog1.FileName), Encoding.UTF8, true, 128);
+
+                    string text = System.IO.File.ReadAllText(openfiledialog1.FileName);
+
+                    write_text_data_to_points(text);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Cannot read file from disk. Original error: " + ex.Message.ToString());
+                }
+            }
+            openfiledialog1.Dispose();
+
+
+        }
+
+        private void write_text_data_to_points(string text)
+        {
+            // Intiailize with input string
+            // Example below
+            //
+            //2, x = -1.59386390011642, y = 9.03712415066991
+            //e8_0, x = 1.73946949767451, y = 9.03712415066991
+            //e8_1, x = 5.07280289546544, y = 9.03712415066991
+            //e8_2, x = 8.40613629325637, y = 9.03712415066991
+            //e8_3, x = 11.7394696910473, y = 9.03712415066991
+            //e8_4, x = 15.0728030888382, y = 9.03712415066991
+            //6, x = 18.4061364866292, y = 9.03712415066991
+            //e9_0, x = 18.4061364866291, y = 5.70379079262162
+            //e9_1, x = 18.4061364866292, y = 2.37045743457333
+            //e9_2, x = 18.4061364866292, y = -0.962875923474956
+            //e9_3, x = 18.4061364866292, y = -4.29620928152324
+            //e9_4, x = 18.4061364866292, y = -7.62954263957153
+            //e9_5, x = 18.4061364866292, y = -10.9628759976198
+            //e9_6, x = 18.4061364866292, y = -14.2962093556681
+            //e9_7, x = 18.4061364866292, y = -17.6295427137164
+            //5, x = 18.4061364866292, y = -20.9628760717647
+            //e7_0, x = 15.0728030888382, y = -20.9628760717647
+            //e7_1, x = 11.7394696910473, y = -20.9628760717647
+            //e7_2, x = 8.40613629325637, y = -20.9628760717647
+            //e7_3, x = 5.07280289546544, y = -20.9628760717647
+            //e7_4, x = 1.73946949767451, y = -20.9628760717647
+            //4, x = -1.59386390011642, y = -20.9628760717647
+            //e6_0, x = -1.59386390011642, y = -17.6295427137164
+            //e6_1, x = -1.59386390011642, y = -14.2962093556681
+            //e6_2, x = -1.59386390011642, y = -10.9628759976198
+            //e6_3, x = -1.59386390011642, y = -7.62954263957153
+            //e6_4, x = -1.59386390011642, y = -4.29620928152324
+            //e6_5, x = -1.59386390011642, y = -0.962875923474958
+            //e6_6, x = -1.59386390011642, y = 2.37045743457333
+            //e6_7, x = -1.59386390011642, y = 5.70379079262162
+            //END
+
+            // Get the inner boundary
+            List<planar_object_store.point2d> temp_pt_list = new List<planar_object_store.point2d>();
+            int scale_v = 10;
+
+            try
+            {
+                using (StringReader reader = new StringReader(text))
+                {
+                    string line;
+                    int temp_id = 0;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        while (line.Substring(0, 3) != "END")
+                        {
+                            // split by comma ,
+                            string[] pointstr = line.Split(',');
+                            // get the id (split by equalto = and get the last)
+                            string id_str = RemoveWhitespace(pointstr[0].Split('=').Last());
+                            // get the x_coord (split by equalto = and get the last)
+                            string x_str = RemoveWhitespace(pointstr[1].Split('=').Last());
+                            // get the y_coord (split by equalto = and get the last)
+                            string y_str = RemoveWhitespace(pointstr[2].Split('=').Last());
+
+                            double x_coord = Double.Parse(x_str) * scale_v;
+                            double y_coord = Double.Parse(y_str) * scale_v;
+
+                            temp_pt_list.Add(new planar_object_store.point2d(temp_id, x_coord, y_coord));
+                            temp_id++;
+
+                            // Read the next line
+                            line = reader.ReadLine();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show("Error reading input !!!" + Environment.NewLine + ex, "Samson Mano");
+                return;
+            }
+
+            // Add to the main list
+            main_drw_obj = new planar_object_store(); // reinitialize the all the lists
+
+            // copy to the main list
+            main_drw_obj.all_points = temp_pt_list;
+
+            // Add boundary edges
+            planar_object_store.point2d[] x_sorted = temp_pt_list.OrderBy(obj => obj.x).ToArray();
+            planar_object_store.point2d[] y_sorted = temp_pt_list.OrderBy(obj => obj.y).ToArray();
+
+            int gap = 10;
+
+            main_drw_obj.bndry_pts.Add(new planar_object_store.point2d(0, x_sorted[0].x - gap, y_sorted[0].y - gap));
+            main_drw_obj.bndry_pts.Add(new planar_object_store.point2d(1, x_sorted[0].x - gap, y_sorted[y_sorted.Count() - 1].y + gap));
+            main_drw_obj.bndry_pts.Add(new planar_object_store.point2d(2, x_sorted[x_sorted.Count() - 1].x + gap, y_sorted[y_sorted.Count() - 1].y + gap));
+            main_drw_obj.bndry_pts.Add(new planar_object_store.point2d(3, x_sorted[x_sorted.Count() - 1].x + gap, y_sorted[0].y - gap));
+
+
+            main_drw_obj.bndry_edge.Add(new planar_object_store.edge2d(0, main_drw_obj.bndry_pts[0], main_drw_obj.bndry_pts[1]));
+            main_drw_obj.bndry_edge.Add(new planar_object_store.edge2d(1, main_drw_obj.bndry_pts[1], main_drw_obj.bndry_pts[2]));
+            main_drw_obj.bndry_edge.Add(new planar_object_store.edge2d(2, main_drw_obj.bndry_pts[2], main_drw_obj.bndry_pts[3]));
+            main_drw_obj.bndry_edge.Add(new planar_object_store.edge2d(3, main_drw_obj.bndry_pts[3], main_drw_obj.bndry_pts[0]));
+
+            step_count = 0;
+
+            mt_pic.Refresh();
+        }
+
+
+        public string RemoveWhitespace(string input)
+        {
+            return new string(input.ToCharArray()
+                .Where(c => !Char.IsWhiteSpace(c))
+                .ToArray());
+        }
+
 
         private void button_delaunay_Click(object sender, EventArgs e)
         {
             // start of the delaunay triangulation 
             main_drw_obj.all_edges = new List<planar_object_store.edge2d>(); // reinitialize the edge lists
             main_drw_obj.all_faces = new List<planar_object_store.face2d>(); // reinitialize the face lists
-                                                                                        
+
 
             List<planar_object_store.edge2d> temp_edges = new List<planar_object_store.edge2d>();
             List<planar_object_store.face2d> temp_faces = new List<planar_object_store.face2d>();
-           
+
             //(new delaunay_divide_n_conquer()).delaunay_start(main_drw_obj.all_points, ref temp_edges, ref temp_instances);
             // Delaunay Triangulation 
             // (new delaunay_triangulation_divide_n_conquer()).delaunay_start(main_drw_obj.all_points, ref temp_edges, ref temp_faces, ref temp_instances);
@@ -423,7 +574,7 @@ namespace Delaunay_triangulation_BW
             // set canvas size when form loads
             main_drw_obj = new planar_object_store(); // intialize the main drawing object
             initiate_canvas_size();
-            
+
             //(int)(the_static_class.canvas_size.Width * 0.5); // limits to create x random number
             //(int)(the_static_class.canvas_size.Height * 0.5); // limits to create y random number
             generate_random_points(10, (int)(the_static_class.canvas_size.Width * 0.5), (int)(the_static_class.canvas_size.Height * 0.5)); // Generate 10 Random points when the form loads
@@ -434,7 +585,9 @@ namespace Delaunay_triangulation_BW
             main_drw_obj = new planar_object_store(); // reinitialize the all the lists
 
             List<planar_object_store.point2d> temp_pt_list = new List<planar_object_store.point2d>(); // create a temporary list to store the points
-                                                                                                      // !!!!!!!!!!!! Need major improvements below - very slow to generate unique n random points !!!!!!!!!!!!!!!!!!!!!!!!!!!
+            int scale_v = 1;   // !!! Increase this number if you are testing more than 1000 Points         
+            
+            // !!!!!!!!!!!! Need major improvements below - very slow to generate unique n random points !!!!!!!!!!!!!!!!!!!!!!!!!!!
             int point_count = inpt_point_count;
             do
             {
@@ -444,7 +597,7 @@ namespace Delaunay_triangulation_BW
                     planar_object_store.point2d temp_pt; // temp_pt to store the intermediate random points
                     PointF rand_pt = new PointF(rand0.Next(-x_coord_limit, x_coord_limit),
                                  rand0.Next(-y_coord_limit, y_coord_limit));
-                    temp_pt = new planar_object_store.point2d(i, rand_pt.X / Math.Sqrt(2), rand_pt.Y / Math.Sqrt(2));
+                    temp_pt = new planar_object_store.point2d(i, (rand_pt.X* scale_v) / Math.Sqrt(2), (rand_pt.Y* scale_v) / Math.Sqrt(2));
                     temp_pt_list.Add(temp_pt); // add to the temp list
                 }
 
@@ -501,7 +654,7 @@ namespace Delaunay_triangulation_BW
             // Draw orgin
             // e.Graphics.DrawEllipse(new Pen(Color.Black, 1), -2, -2, 4, 4);
 
-            main_drw_obj.paint_me(ref gr1, ref the_static_class.is_animate_checked, ref the_static_class.instance_counter_at);
+            main_drw_obj.paint_me(ref gr1);
         }
 
         private void main_pic_SizeChanged(object sender, EventArgs e)
@@ -516,12 +669,8 @@ namespace Delaunay_triangulation_BW
 
             public static bool ispaint_label = false; // static variable to control whether to paint id or not
 
-            public static bool is_animate_checked = false; // static variable to control animation timing;
             public static bool is_paint_incircle = false;
             public static bool is_paint_mesh = false;
-
-            public static int instance_counter_at; // static variable to control instances count
-            public static int inpt_timer_interval = 500; // 0.5 seconds, static variable to control the interval of the timer
 
             /// <summary>
                         /// Function to generate random integer between a maximum and minimum value

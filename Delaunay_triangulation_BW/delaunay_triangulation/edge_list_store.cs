@@ -8,30 +8,32 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
 {
     public class edge_list_store
     {
-        public HashSet<edge_store> all_edges { get; private set; }
-        private HashSet<int> unique_edgeid_list = new HashSet<int>();
+        //  public HashSet<edge_store> all_edges { get; private set; }
 
-        public int edges_count { get { return all_edges.Count; } }
+        private Dictionary<int, edge_store> all_edges; 
+        private HashSet<int> unique_edgeid_list = new HashSet<int>();
 
         public edge_list_store()
         {
             // Empty Constructor
-            this.all_edges = new HashSet<edge_store>();
+            this.all_edges = new Dictionary<int, edge_store>();
         }
 
-        public int add_edge(int pt1_id, int pt2_id, double edge_length)
+        public int add_edge(int pt1_id, int pt2_id,point_d mid_pt, double edge_length)
         {
             // Add Edge
             int edge_id = get_unique_edge_id();
 
-            this.all_edges.Add(new edge_store(edge_id, pt1_id, pt2_id, edge_length));
+            this.all_edges.Add(edge_id,new edge_store(edge_id, pt1_id, pt2_id,mid_pt, edge_length));
             return edge_id;
         }
 
         public void remove_edge(int r_edge_id)
         {
+            // Remove edge
             unique_edgeid_list.Add(r_edge_id);
-            this.all_edges.Remove(get_edge(r_edge_id));
+
+            this.all_edges.Remove(r_edge_id);
         }
 
 
@@ -41,12 +43,13 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             point_d tri_midpt = tri_datas.get_triangle_midpt(tri_id);
 
             // Associate triangle to the edge
-            this.all_edges.First(obj => obj.Equals(f_edge_id)).associate_triangle(tri_id, tri_midpt, pt_datas);
+            this.all_edges[f_edge_id].associate_triangle(tri_id, tri_midpt, pt_datas);
         }
 
-        public int get_point_containing_edge(point_store the_pt, point_list_store pt_datas)
+        public int get_point_containing_edge(int the_pt_id, point_list_store pt_datas)
         {
-            List<edge_store> edges_as_list = all_edges.ToList();
+            point_store the_pt = pt_datas.get_point(the_pt_id);
+            List<edge_store> edges_as_list = get_all_edges().Where(obj=>obj.is_pt_inside_midcircle(the_pt.pt_coord)).ToList();
 
             foreach (edge_store edge in edges_as_list)
             {
@@ -59,7 +62,7 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
                 }
             }
 
-            // No edges find
+            // No edges found
             return -1;
         }
 
@@ -127,9 +130,20 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             return edge_id;
         }
 
+        public List<edge_store> get_all_edges()
+        {
+            return this.all_edges.Values.ToList();
+        }
+
+  
         public edge_store get_edge(int ed_id)
         {
-            return all_edges.First(e => e.Equals(ed_id));
+            edge_store ed;
+            if(this.all_edges.TryGetValue(ed_id, out ed) ==true)
+            {
+                return ed;
+            }
+            return null;
         }
     }
 }

@@ -8,30 +8,33 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
 {
     public class point_list_store
     {
-        public HashSet<point_store> all_points { get; private set; }
+
+        private Dictionary<int, point_store> all_points;
         private HashSet<int> unique_pointid_list = new HashSet<int>();
 
-        public int points_count { get { return all_points.Count; } }
+        //public int points_count { get { return all_points.Count; } }
 
         public point_list_store()
         {
             // Empty constructor
-            this.all_points = new HashSet<point_store>();
+            this.all_points = new Dictionary<int, point_store>();
         }
 
-        public void add_point(point_store i_pt)
+        public int add_point(point_store i_pt)
         {
             // Add point
             int point_id = get_unique_point_id();
 
-            all_points.Add(new point_store(point_id, i_pt.pt_coord.x, i_pt.pt_coord.y, i_pt.pt_type));
+            this.all_points.Add(point_id,new point_store(point_id, i_pt.pt_coord.x, i_pt.pt_coord.y, i_pt.pt_type));
+
+            return point_id;
         }
 
-        public void remove_point(point_store i_pt)
+        public void remove_point(int pt_id)
         {
             // Remove point
-            unique_pointid_list.Add(i_pt.pt_id);
-            all_points.Remove(i_pt);
+            unique_pointid_list.Add(pt_id);
+            this.all_points.Remove(pt_id);
         }
 
         private int get_unique_point_id()
@@ -50,9 +53,20 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             return point_id;
         }
 
+
+        public List<point_store> get_all_points()
+        {
+            return this.all_points.Values.ToList();
+        }
+
         public point_store get_point(int pt_id)
         {
-            return all_points.First(p => p.Equals(pt_id));
+            point_store pt;
+            if (this.all_points.TryGetValue(pt_id, out pt) == true)
+            {
+                return pt;
+            }
+            return null;
         }
     }
 }
