@@ -14,6 +14,8 @@ In my PC, 1000pts -> 141 ms, 2000pts ->	511ms, 3000pts ->	1085ms, 5000pts -> 291
 
 ### Any bugs?
 
-Didnot encounter any bugs. If you find anything raise an issue. Coincident points will give error message.
+Didnot encounter any bugs. If you find anything raise an issue.
 
-![BW_delaunay_results](/Delaunay_triangulation_BW/images/bw_results.png)
+![BW_delaunay_result5000](/Delaunay_triangulation_BW/images/bw_result5000pts.png)
+
+![BW_delaunay_result1000](/Delaunay_triangulation_BW/images/bw_result1000pts.png)
