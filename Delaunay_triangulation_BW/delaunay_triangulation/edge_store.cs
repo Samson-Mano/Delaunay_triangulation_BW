@@ -57,8 +57,27 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             {
                 // Add the left triangle
                 this.left_triangle_id = tri_id;
-             }
+            }
         }
+
+        public void disassociate_triangle(int tri_id, point_d tri_midpt, point_list_store pt_datas)
+        {
+            // get the start point and end point
+            point_d spt = pt_datas.get_point(start_pt_id).pt_coord;
+            point_d ept = pt_datas.get_point(end_pt_id).pt_coord;
+
+            if (rightof(tri_midpt, spt, ept) == true)
+            {
+                // Add the right triangle
+                this.right_triangle_id = -1;
+            }
+            else
+            {
+                // Add the left triangle
+                this.left_triangle_id = -1;
+            }
+        }
+
 
         public int other_triangle_id(int tri_id)
         {
@@ -70,6 +89,20 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             else if (tri_id == this.left_triangle_id)
             {
                 return this.right_triangle_id;
+            }
+            return -1;
+        }
+
+        public int other_point_id(int pt_id)
+        {
+            // Return the point id of other point than the given
+            if (pt_id == this.start_pt_id)
+            {
+                return this.end_pt_id;
+            }
+            else if (pt_id == this.end_pt_id)
+            {
+                return this.start_pt_id;
             }
             return -1;
         }

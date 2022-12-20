@@ -592,8 +592,7 @@ namespace Delaunay_triangulation_BW
             main_drw_obj = new planar_object_store(); // reinitialize the all the lists
 
             List<planar_object_store.point2d> temp_pt_list = new List<planar_object_store.point2d>(); // create a temporary list to store the points
-            int scale_v = 1;   // !!! Increase this number if you are testing more than 1000 Points         
-            
+         
             // !!!!!!!!!!!! Need major improvements below - very slow to generate unique n random points !!!!!!!!!!!!!!!!!!!!!!!!!!!
             int point_count = inpt_point_count;
             do
@@ -604,7 +603,7 @@ namespace Delaunay_triangulation_BW
                     planar_object_store.point2d temp_pt; // temp_pt to store the intermediate random points
                     PointF rand_pt = new PointF(rand0.Next(-x_coord_limit, x_coord_limit),
                                  rand0.Next(-y_coord_limit, y_coord_limit));
-                    temp_pt = new planar_object_store.point2d(i, (rand_pt.X* scale_v) / Math.Sqrt(2), (rand_pt.Y* scale_v) / Math.Sqrt(2));
+                    temp_pt = new planar_object_store.point2d(i, rand_pt.X / Math.Sqrt(2), rand_pt.Y / Math.Sqrt(2));
                     temp_pt_list.Add(temp_pt); // add to the temp list
                 }
 

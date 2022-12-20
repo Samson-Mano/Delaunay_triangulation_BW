@@ -8,10 +8,9 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
 {
     public class point_list_store
     {
-
         private Dictionary<int, point_store> all_points;
         private HashSet<int> unique_pointid_list = new HashSet<int>();
-
+      
         //public int points_count { get { return all_points.Count; } }
 
         public point_list_store()
@@ -35,6 +34,20 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             // Remove point
             unique_pointid_list.Add(pt_id);
             this.all_points.Remove(pt_id);
+        }
+
+        public void associate_pt_to_edge(int pt1_id,int pt2_id,int edge_id)
+        {
+            // Add the associated edge
+            this.all_points[pt1_id].associated_edge.Add(edge_id);
+            this.all_points[pt2_id].associated_edge.Add(edge_id);
+        }
+
+        public void dissassociate_pt_from_edge(int pt1_id, int pt2_id, int edge_id)
+        {
+            // Remove the associated edge
+            this.all_points[pt1_id].associated_edge.Remove(edge_id);
+            this.all_points[pt2_id].associated_edge.Remove(edge_id);
         }
 
         private int get_unique_point_id()

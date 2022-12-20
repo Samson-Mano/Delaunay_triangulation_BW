@@ -14,6 +14,8 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
 
         public int pt_type { get; private set; }
 
+        public HashSet<int> associated_edge { get; private set; }
+
         public point_store(int i_pt_id, double i_x, double i_y, int i_pt_type)
         {
             // Constructor
@@ -24,6 +26,8 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
 
             // point type 1 - End point (or vertex), 2 - Lies on edge, 3 - Lies inside surface
             this.pt_type = i_pt_type;
+
+            this.associated_edge = new HashSet<int>();
         }
 
         public bool Equals(point_d other_ptcoord)

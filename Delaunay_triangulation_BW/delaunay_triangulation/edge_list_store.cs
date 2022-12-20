@@ -46,6 +46,15 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             this.all_edges[f_edge_id].associate_triangle(tri_id, tri_midpt, pt_datas);
         }
 
+        public void disassociate_triangle_from_edge(int f_edge_id, int tri_id, point_list_store pt_datas, triangle_list_store tri_datas)
+        {
+            // Get triangle mid point
+            point_d tri_midpt = tri_datas.get_triangle_midpt(tri_id);
+
+            // Associate triangle to the edge
+            this.all_edges[f_edge_id].disassociate_triangle(tri_id, tri_midpt, pt_datas);
+        }
+
         public int get_point_containing_edge(int the_pt_id, point_list_store pt_datas)
         {
             point_store the_pt = pt_datas.get_point(the_pt_id);

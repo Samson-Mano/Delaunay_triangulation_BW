@@ -58,6 +58,7 @@
     <Compile Include="delaunay_triangulation\point_store.cs" />
     <Compile Include="delaunay_triangulation\triangle_list_store.cs" />
     <Compile Include="delaunay_triangulation\triangle_store.cs" />
+    <Compile Include="delaunay_triangulation\voronoi_polygon_store.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -93,6 +94,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="images\bw_result1000pts.png" />
+    <Content Include="images\bw_result5000pts.png" />
     <Content Include="images\bw_results.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

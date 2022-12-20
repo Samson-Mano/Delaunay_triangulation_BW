@@ -167,6 +167,9 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             tri_outside_four_edges_h.Remove(inc_edge.edge_id);
 
             // Remove the common edge
+            this.points_data.dissassociate_pt_from_edge(this.edges_data.get_edge(containing_edge_id).start_pt_id,
+                this.edges_data.get_edge(containing_edge_id).end_pt_id,
+                containing_edge_id);
             this.edges_data.remove_edge(containing_edge_id);
 
             // remove the two triangle
@@ -207,24 +210,28 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             double edge_len_1 = get_edge_length(new_pt.pt_coord, pt1.pt_coord);
             point_d mid_pt_1 = get_edge_midpt(new_pt.pt_coord, pt1.pt_coord);
             edge_indices[0] = edges_data.add_edge(new_pt.pt_id, pt1.pt_id, mid_pt_1, edge_len_1);
+            this.points_data.associate_pt_to_edge(new_pt.pt_id, tri_corner_four_pts[0], edge_indices[0]);
 
             // Add Edge 2
             point_store pt2 = points_data.get_point(tri_corner_four_pts[1]);
             double edge_len_2 = get_edge_length(new_pt.pt_coord, pt2.pt_coord);
             point_d mid_pt_2 = get_edge_midpt(new_pt.pt_coord, pt2.pt_coord);
             edge_indices[1] = edges_data.add_edge(new_pt.pt_id, pt2.pt_id, mid_pt_2, edge_len_2);
+            this.points_data.associate_pt_to_edge(new_pt.pt_id, tri_corner_four_pts[1], edge_indices[1]);
 
             // Add Edge 3
             point_store pt3 = points_data.get_point(tri_corner_four_pts[2]);
             double edge_len_3 = get_edge_length(new_pt.pt_coord, pt3.pt_coord);
             point_d mid_pt_3 = get_edge_midpt(new_pt.pt_coord, pt3.pt_coord);
             edge_indices[2] = edges_data.add_edge(new_pt.pt_id, pt3.pt_id, mid_pt_3, edge_len_3);
+            this.points_data.associate_pt_to_edge(new_pt.pt_id, tri_corner_four_pts[2], edge_indices[2]);
 
             // Add Edge 4
             point_store pt4 = points_data.get_point(tri_corner_four_pts[3]);
             double edge_len_4 = get_edge_length(new_pt.pt_coord, pt4.pt_coord);
             point_d mid_pt_4 = get_edge_midpt(new_pt.pt_coord, pt4.pt_coord);
             edge_indices[3] = edges_data.add_edge(new_pt.pt_id, pt4.pt_id, mid_pt_4, edge_len_4);
+            this.points_data.associate_pt_to_edge(new_pt.pt_id, tri_corner_four_pts[3], edge_indices[3]);
             //_________________________________________________________________________________
 
 
@@ -321,18 +328,21 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             double edge_len_1 = get_edge_length(new_pt.pt_coord, pt1.pt_coord);
             point_d mid_pt_1 = get_edge_midpt(new_pt.pt_coord, pt1.pt_coord);
             edge_indices[0] = edges_data.add_edge(new_pt.pt_id, pt1.pt_id, mid_pt_1, edge_len_1);
+            this.points_data.associate_pt_to_edge(new_pt.pt_id, tri_three_pts[0], edge_indices[0]);
 
             // Add Edge 2
             point_store pt2 = points_data.get_point(tri_three_pts[1]);
             double edge_len_2 = get_edge_length(new_pt.pt_coord, pt2.pt_coord);
             point_d mid_pt_2 = get_edge_midpt(new_pt.pt_coord, pt2.pt_coord);
             edge_indices[1] = edges_data.add_edge(new_pt.pt_id, pt2.pt_id, mid_pt_2, edge_len_2);
+            this.points_data.associate_pt_to_edge(new_pt.pt_id, tri_three_pts[1], edge_indices[1]);
 
             // Add Edge 3
             point_store pt3 = points_data.get_point(tri_three_pts[2]);
             double edge_len_3 = get_edge_length(new_pt.pt_coord, pt3.pt_coord);
             point_d mid_pt_3 = get_edge_midpt(new_pt.pt_coord, pt3.pt_coord);
             edge_indices[2] = edges_data.add_edge(new_pt.pt_id, pt3.pt_id, mid_pt_3, edge_len_3);
+            this.points_data.associate_pt_to_edge(new_pt.pt_id, tri_three_pts[2], edge_indices[2]);
             //_________________________________________________________________________________
 
             // Add three triangles
@@ -423,7 +433,8 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             double edge_len_n = get_edge_length(c_pt.pt_coord, other_pt.pt_coord);
             point_d mid_pt_n = get_edge_midpt(c_pt.pt_coord, other_pt.pt_coord);
             edge_index = edges_data.add_edge(c_pt.pt_id, other_pt.pt_id, mid_pt_n, edge_len_n);
-            //_________________________________________________________________________________
+            this.points_data.associate_pt_to_edge(c_pt.pt_id, tri_corner_four_pts[2], edge_index);
+              //_________________________________________________________________________________
 
             // Add two triangles
             int[] output_indices = new int[2];
@@ -595,11 +606,14 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
                         return;
                     }
                     // Remove the common edge
-                    edges_data.remove_edge(common_edge_id);
+                    this.points_data.dissassociate_pt_from_edge(this.edges_data.get_edge(common_edge_id).start_pt_id, 
+                        this.edges_data.get_edge(common_edge_id).end_pt_id, 
+                        common_edge_id);
+                    this.edges_data.remove_edge(common_edge_id);
 
                     // Remove the two triangles
-                    triangles_data.remove_triangle(tri_id);
-                    triangles_data.remove_triangle(neighbour_tri_id);
+                    this.triangles_data.remove_triangle(tri_id);
+                    this.triangles_data.remove_triangle(neighbour_tri_id);
 
                     // Order the IDS of edges and points
                     List<int> tri_outside_four_edges_l = tri_outside_four_edges_h.ToList();
@@ -632,7 +646,7 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             double max_x, max_y, k;
             max_x = (x_sorted[x_sorted.Length - 1].pt_coord.x - x_sorted[0].pt_coord.x);
             max_y = (y_sorted[y_sorted.Length - 1].pt_coord.y - y_sorted[0].pt_coord.y);
-            k = 100 * Math.Max(max_x, max_y);
+            k = 4 * Math.Max(max_x, max_y);
 
             // zeoth _point
             double x_zero, y_zero;
@@ -658,16 +672,19 @@ namespace Delaunay_triangulation_BW.delaunay_triangulation
             double edge_len_1 = get_edge_length(s_p1.pt_coord, s_p2.pt_coord);
             point_d mid_pt_1 = get_edge_midpt(s_p1.pt_coord, s_p2.pt_coord);
             stri_edges_id[0] = edges_data.add_edge(s_p1.pt_id, s_p2.pt_id, mid_pt_1, edge_len_1);
+            this.points_data.associate_pt_to_edge(s_p1.pt_id, s_p2.pt_id, stri_edges_id[0]);
 
             // Add Edge 2
             double edge_len_2 = get_edge_length(s_p2.pt_coord, s_p3.pt_coord);
             point_d mid_pt_2 = get_edge_midpt(s_p2.pt_coord, s_p3.pt_coord);
             stri_edges_id[1] = edges_data.add_edge(s_p2.pt_id, s_p3.pt_id, mid_pt_2, edge_len_2);
+            this.points_data.associate_pt_to_edge(s_p2.pt_id, s_p3.pt_id, stri_edges_id[1]);
 
             // Add Edge 3
             double edge_len_3 = get_edge_length(s_p3.pt_coord, s_p1.pt_coord);
             point_d mid_pt_3 = get_edge_midpt(s_p3.pt_coord, s_p1.pt_coord);
             stri_edges_id[2] = edges_data.add_edge(s_p3.pt_id, s_p1.pt_id, mid_pt_3, edge_len_3);
+            this.points_data.associate_pt_to_edge(s_p3.pt_id, s_p1.pt_id, stri_edges_id[2]);
             //_________________________________________________________________________________
 
 
